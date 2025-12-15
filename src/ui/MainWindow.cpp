@@ -56,6 +56,75 @@
 #include <string>
 
 
+static QString getPrimaryButtonStyle() {
+  return "QPushButton {"
+         "    background-color: #2196F3;"
+         "    color: white;"
+         "    border: none;"
+         "    padding: 10px 20px;"
+         "    font-size: 14px;"
+         "    border-radius: 5px;"
+         "}"
+         "QPushButton:hover {"
+         "    background-color: #1976d2;"
+         "}"
+         "QPushButton:pressed {"
+         "    background-color: #0d47a1;"
+         "}";
+}
+
+static QString getSecondaryButtonStyle() {
+  return "QPushButton {"
+         "    background-color: #757575;"
+         "    color: white;"
+         "    border: none;"
+         "    padding: 10px 20px;"
+         "    font-size: 14px;"
+         "    border-radius: 5px;"
+         "}"
+         "QPushButton:hover {"
+         "    background-color: #616161;"
+         "}"
+         "QPushButton:pressed {"
+         "    background-color: #424242;"
+         "}";
+}
+
+static QString getDangerButtonStyle() {
+  return "QPushButton {"
+         "    background-color: #f44336;"
+         "    color: white;"
+         "    border: none;"
+         "    padding: 10px 20px;"
+         "    font-size: 14px;"
+         "    border-radius: 5px;"
+         "}"
+         "QPushButton:hover {"
+         "    background-color: #d32f2f;"
+         "}"
+         "QPushButton:pressed {"
+         "    background-color: #b71c1c;"
+         "}";
+}
+
+static QString getSuccessButtonStyle() {
+  return "QPushButton {"
+         "    background-color: #4CAF50;"
+         "    color: white;"
+         "    border: none;"
+         "    padding: 10px 20px;"
+         "    font-size: 14px;"
+         "    border-radius: 5px;"
+         "}"
+         "QPushButton:hover {"
+         "    background-color: #388E3C;"
+         "}"
+         "QPushButton:pressed {"
+         "    background-color: #1B5E20;"
+         "}";
+}
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), inventoryManager(new InventoryService()) {
 
@@ -263,7 +332,7 @@ QWidget *MainWindow::createWarehouseSection() {
   controlsLayout->setSpacing(10);
 
   setupSearchBar();
-  setupButtons();
+  addButton = new QPushButton("Add Product", this);
 
   addButton->setText("Add Product");
   addButton->setMinimumHeight(35);
@@ -396,18 +465,11 @@ void MainWindow::setupSearchBar() {
   categoryComboBox->addItem("Other");
 }
 
-void MainWindow::setupButtons() {
-  addButton = new QPushButton("Add Product", this);
-}
-
 void MainWindow::connectSignals() {
   connect(addButton, &QPushButton::clicked, this, &MainWindow::addProduct);
-  connect(searchLineEdit, &QLineEdit::textChanged, this,
-          &MainWindow::searchProducts);
+  connect(searchLineEdit, &QLineEdit::textChanged, this, &MainWindow::applyFilters);
   connect(categoryComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &MainWindow::filterByCategory);
-  connect(tableView->selectionModel(), &QItemSelectionModel::selectionChanged,
-          this, &MainWindow::onSelectionChanged);
+          this, &MainWindow::applyFilters);
 }
 
 void MainWindow::refreshTable() {
@@ -621,10 +683,6 @@ void MainWindow::exportReport() {
   }
 }
 
-void MainWindow::searchProducts() { applyFilters(); }
-
-void MainWindow::filterByCategory() { applyFilters(); }
-
 void MainWindow::applyFilters() {
   if (!inventoryManager || !productModel || !categoryComboBox ||
       !searchLineEdit) {
@@ -645,10 +703,6 @@ void MainWindow::applyFilters() {
     }
   }
   productModel->setProducts(productList);
-}
-
-void MainWindow::onSelectionChanged() {
-  Q_UNUSED(tableView->selectionModel()->selectedRows());
 }
 
 void MainWindow::editProductByRow(int row) {
@@ -1622,76 +1676,4 @@ QList<QPair<QString, double>> MainWindow::getTopCompaniesData(int topCount) {
   }
 
   return companyList;
-}
-
-QString MainWindow::getPrimaryButtonStyle() const {
-  return "QPushButton {"
-         "    background-color: #2196F3;"
-         "    color: white;"
-         "    border: none;"
-         "    border-radius: 5px;"
-         "    padding: 10px 20px;"
-         "    font-weight: bold;"
-         "    font-size: 14px;"
-         "}"
-         "QPushButton:hover {"
-         "    background-color: #0b7dda;"
-         "}"
-         "QPushButton:pressed {"
-         "    background-color: #0a6bc2;"
-         "}";
-}
-
-QString MainWindow::getSecondaryButtonStyle() const {
-  return "QPushButton {"
-         "    background-color: #757575;"
-         "    color: white;"
-         "    border: none;"
-         "    border-radius: 5px;"
-         "    padding: 10px 20px;"
-         "    font-weight: bold;"
-         "    font-size: 14px;"
-         "}"
-         "QPushButton:hover {"
-         "    background-color: #616161;"
-         "}"
-         "QPushButton:pressed {"
-         "    background-color: #424242;"
-         "}";
-}
-
-QString MainWindow::getDangerButtonStyle() const {
-  return "QPushButton {"
-         "    background-color: #f44336;"
-         "    color: white;"
-         "    border: none;"
-         "    border-radius: 5px;"
-         "    padding: 10px 20px;"
-         "    font-weight: bold;"
-         "    font-size: 14px;"
-         "}"
-         "QPushButton:hover {"
-         "    background-color: #da190b;"
-         "}"
-         "QPushButton:pressed {"
-         "    background-color: #c62828;"
-         "}";
-}
-
-QString MainWindow::getSuccessButtonStyle() const {
-  return "QPushButton {"
-         "    background-color: #4CAF50;"
-         "    color: white;"
-         "    border: none;"
-         "    border-radius: 5px;"
-         "    padding: 10px 20px;"
-         "    font-weight: bold;"
-         "    font-size: 14px;"
-         "}"
-         "QPushButton:hover {"
-         "    background-color: #45a049;"
-         "}"
-         "QPushButton:pressed {"
-         "    background-color: #388e3c;"
-         "}";
 }

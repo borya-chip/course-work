@@ -54,14 +54,9 @@ private slots:
   void saveOrderHistoryToTxt(const Order &order);
 
   void exportReport();
-
-  void searchProducts();
-  void filterByCategory();
   void applyFilters();
 
   void refreshTable();
-
-  void onSelectionChanged();
 
   void editProductByRow(int row);
   void deleteProductByRow(int row);
@@ -71,7 +66,6 @@ private:
   void setupUI();
   void setupTable();
   void setupSearchBar();
-  void setupButtons();
   void connectSignals();
   void setupSidebar();
   void setupContentArea();
@@ -84,11 +78,6 @@ private:
   double calculateTotalSales();
   QMap<QString, double> getCategorySalesData();
   QList<QPair<QString, double>> getTopCompaniesData(int topCount);
-
-  QString getPrimaryButtonStyle() const;
-  QString getSecondaryButtonStyle() const;
-  QString getDangerButtonStyle() const;
-  QString getSuccessButtonStyle() const;
 
   QTreeWidget *sidebarMenu;
 

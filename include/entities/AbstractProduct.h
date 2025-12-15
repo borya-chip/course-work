@@ -13,6 +13,8 @@ private:
 public:
     AbstractProduct(const std::string& name, const std::string& category, 
                    int quantity, double unitPrice);
+    AbstractProduct(const AbstractProduct&) = default;
+    AbstractProduct& operator=(const AbstractProduct&) = default;
     AbstractProduct(AbstractProduct&&) noexcept = default;
     AbstractProduct& operator=(AbstractProduct&&) noexcept = default;
     virtual ~AbstractProduct() = default;
