@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <ranges>
 #include <functional>
 #include <memory>
 #include <string>
@@ -23,8 +24,7 @@ public:
     template<typename Predicate>
     std::vector<std::shared_ptr<T>> filter(Predicate pred) const {
         std::vector<std::shared_ptr<T>> result;
-        std::copy_if(products.begin(), products.end(), 
-                    std::back_inserter(result), pred);
+        std::ranges::copy_if(products, std::back_inserter(result), pred);
         return result;
     }
 
