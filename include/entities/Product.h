@@ -24,6 +24,11 @@ public:
     Product(const std::string& name = "", const std::string& category = "", 
            int quantity = 0, double unitPrice = 0.0);
 
+    Product(const Product&) = default;
+    Product& operator=(const Product&) = default;
+    Product(Product&&) noexcept = default;
+    Product& operator=(Product&&) noexcept = default;
+
     double calculateTotalValue() const override;
     std::string getProductType() const override;
 
