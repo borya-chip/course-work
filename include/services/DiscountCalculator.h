@@ -14,7 +14,7 @@ public:
   }
 
   static double calculateRetailDiscount(int quantity) {
-    Q_UNUSED(quantity);
+    (void)quantity;
     return 0.0;
   }
 

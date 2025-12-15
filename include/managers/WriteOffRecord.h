@@ -3,12 +3,12 @@
 #include <string>
 
 struct WriteOffRecord {
-  int id;
-  int productId;
+  int id = 0;
+  int productId = 0;
   std::string productName;
-  int quantity;
-  double value;
+  int quantity = 0;
+  double value = 0.0;
 
-  WriteOffRecord() : id(0), productId(0), quantity(0), value(0.0) {}
+  WriteOffRecord() = default;
 };
 
