@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entities/AbstractProduct.h"
+#include <compare>
 #include <iostream>
 #include <fstream>
 #include <QTextStream>
@@ -21,7 +22,7 @@ private:
     void setId(int newId) { id = newId; }
 
 public:
-    Product(const std::string& name = "", const std::string& category = "", 
+    explicit Product(const std::string& name = "", const std::string& category = "", 
            int quantity = 0, double unitPrice = 0.0);
 
     Product(const Product&) = default;
@@ -49,11 +50,8 @@ public:
     friend bool operator==(const Product& lhs, const Product& rhs) {
         return lhs.id == rhs.id;
     }
-    friend bool operator!=(const Product& lhs, const Product& rhs) {
-        return !(lhs == rhs);
-    }
-    friend bool operator<(const Product& lhs, const Product& rhs) {
-        return lhs.getName() < rhs.getName();
+    friend auto operator<=>(const Product& lhs, const Product& rhs) {
+        return lhs.getName() <=> rhs.getName();
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Product& product);
