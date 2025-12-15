@@ -706,7 +706,7 @@ void MainWindow::applyFilters() {
 }
 
 void MainWindow::editProductByRow(int row) {
-  if (row < 0 || row >= productModel->rowCount()) {
+  if (row < 0 || row >= productModel->rowCount(QModelIndex())) {
     return;
   }
 
@@ -732,7 +732,7 @@ void MainWindow::editProductByRow(int row) {
 }
 
 void MainWindow::deleteProductByRow(int row) {
-  if (row < 0 || row >= productModel->rowCount()) {
+  if (row < 0 || row >= productModel->rowCount(QModelIndex())) {
     return;
   }
 
@@ -761,7 +761,7 @@ void MainWindow::deleteProductByRow(int row) {
 }
 
 void MainWindow::writeOffProductByRow(int row) {
-  if (row < 0 || row >= productModel->rowCount()) {
+  if (row < 0 || row >= productModel->rowCount(QModelIndex())) {
     return;
   }
 
