@@ -6,15 +6,10 @@ int Order::nextId = 1;
 
 void Order::setNextId(int id) { nextId = id + 1; }
 
-Order::Order()
-    : id(nextId++), orderType(OrderType::RETAIL), totalAmount(0.0),
-      totalDiscount(0.0), orderDate(QDate::currentDate()) {}
-
 Order::Order(const QString &company, const QString &contact,
              const QString &phoneNum, OrderType type)
-    : id(nextId++), companyName(company), contactPerson(contact),
-      phone(phoneNum), orderType(type), totalAmount(0.0), totalDiscount(0.0),
-      orderDate(QDate::currentDate()) {}
+    : companyName(company), contactPerson(contact), phone(phoneNum),
+      orderType(type) {}
 
 void Order::addItem(const OrderItem &item) {
 

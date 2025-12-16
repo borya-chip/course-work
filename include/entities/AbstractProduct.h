@@ -30,8 +30,8 @@ public:
 
     void setName(std::string_view name) { this->name.assign(name.data(), name.size()); }
     void setCategory(std::string_view category) { this->category.assign(category.data(), category.size()); }
-    void setQuantity(int quantity);
-    void setUnitPrice(double unitPrice);
+    void setQuantity(int newQuantity);
+    void setUnitPrice(double newUnitPrice);
 
     friend double calculateDiscountedPrice(const AbstractProduct& product, double discount);
 };

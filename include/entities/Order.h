@@ -14,20 +14,20 @@ class Order {
   friend class DatabaseManager;
 
 private:
-  int id;
+  static int nextId;
+
+  int id = nextId++;
   QString companyName;
   QString contactPerson;
   QString phone;
-  OrderType orderType;
-  QDate orderDate;
+  OrderType orderType = OrderType::RETAIL;
+  QDate orderDate = QDate::currentDate();
   std::vector<OrderItem> items;
-  double totalAmount;
-  double totalDiscount;
-
-  static int nextId;
+  double totalAmount = 0.0;
+  double totalDiscount = 0.0;
 
 public:
-  Order();
+  Order() = default;
   Order(const QString &company, const QString &contact, const QString &phoneNum,
         OrderType type);
 
