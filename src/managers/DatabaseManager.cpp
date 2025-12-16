@@ -59,7 +59,7 @@ void DatabaseManager::destroyInstance() {
 bool DatabaseManager::initializeDatabase() { return connect(); }
 
 bool DatabaseManager::connect() {
-
+  connected = false;
   QIODevice::OpenMode appendMode = QIODevice::WriteOnly | QIODevice::Append;
 
   {
@@ -86,15 +86,14 @@ bool DatabaseManager::connect() {
     }
   }
 
+  connected = true;
   return true;
 }
 
-void DatabaseManager::disconnect() {}
+void DatabaseManager::disconnect() { connected = false; }
 
 bool DatabaseManager::isConnected() const {
-
-  QFileInfo info(dataFilePath);
-  return info.exists() || info.dir().exists();
+  return connected;
 }
 
 ProductDataStore &DatabaseManager::products() { return *productStore; }

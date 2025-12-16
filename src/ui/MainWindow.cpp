@@ -760,119 +760,156 @@ void MainWindow::deleteProductByRow(int row) {
   }
 }
 
-void MainWindow::writeOffProductByRow(int row) {
-  if (row < 0 || row >= productModel->rowCount(QModelIndex())) {
-    return;
-  }
-
+bool MainWindow::validateWriteOffRow(int row) {
   if (!productModel || !inventoryManager || !dbManager) {
     QMessageBox::critical(this, "Error",
                           "Internal error: Missing required components.");
+    return false;
+  }
+
+  if (row < 0 || row >= productModel->rowCount(QModelIndex())) {
+    return false;
+  }
+
+  return true;
+}
+
+bool MainWindow::validateWriteOffQuantity(const Product &product, int quantity) {
+  if (quantity <= 0 || quantity > product.getQuantity()) {
+    QMessageBox::warning(this, "Error", "Invalid write-off quantity.");
+    return false;
+  }
+  return true;
+}
+
+QString MainWindow::safeProductName(const Product &product) const {
+  QString productName = QString::fromStdString(product.getName());
+  if (productName.isEmpty()) {
+    productName = "Unknown Product";
+  }
+  return productName;
+}
+
+bool MainWindow::runWriteOffFlow(const Product &product, int quantity,
+                                 const QString &productName) {
+  try {
+    auto result = WriteOffService::writeOffProduct(
+        *inventoryManager, dbManager, product.getId(), quantity, productName);
+    Q_UNUSED(result);
+    return true;
+  } catch (const ProductException &e) {
+    QMessageBox::critical(this, "Error", QString::fromStdString(e.what()));
+    return false;
+  } catch (const std::exception &e) {
+    QMessageBox::critical(
+        this, "Error",
+        QString("Failed to write off product: %1").arg(e.what()));
+    return false;
+  } catch (...) {
+    QMessageBox::critical(this, "Error",
+                          "Failed to write off product: unknown error");
+    return false;
+  }
+}
+
+void MainWindow::persistInventoryAfterWriteOff() {
+  bool saveSuccess = false;
+  try {
+    if (inventoryManager) {
+      saveSuccess = FileManager::saveToBinary(*inventoryManager,
+                                              dataFilePath.toStdString());
+      if (!saveSuccess) {
+        QMessageBox::warning(this, "Warning",
+                             "Product written off, but failed to save to file.");
+      }
+    }
+  } catch (const std::exception &e) {
+    qDebug() << "Error saving to file:" << e.what();
+    QMessageBox::critical(this, "Error",
+                          QString("Failed to save data to file: %1").arg(e.what()));
+  } catch (...) {
+    qDebug() << "Unknown error saving to file";
+    QMessageBox::critical(this, "Error",
+                          "Failed to save data to file: unknown error");
+  }
+}
+
+void MainWindow::refreshUiAfterWriteOff() {
+  try {
+    if (productModel && inventoryManager) {
+      productModel->refresh();
+    }
+    if (tableView) {
+      tableView->viewport()->update();
+      tableView->update();
+      tableView->resizeColumnsToContents();
+
+      QApplication::processEvents();
+    }
+
+    updateWriteOffsReport();
+  } catch (const std::exception &e) {
+    qDebug() << "Error refreshing model:" << e.what();
+  } catch (...) {
+    qDebug() << "Unknown error refreshing model";
+  }
+}
+
+void MainWindow::showWriteOffSuccess(const QString &productName, int quantity) {
+  try {
+    QMessageBox::information(
+        this, "Success",
+        QString("Product '%1' written off successfully!\nQuantity reduced by %2.")
+            .arg(productName)
+            .arg(quantity));
+  } catch (...) {
+    qDebug() << "Failed to show success message";
+  }
+}
+
+void MainWindow::writeOffProductByRow(int row) {
+  if (!validateWriteOffRow(row)) {
     return;
   }
+
   Product product = productModel->getProduct(row);
-
   WriteOffDialog dialog(product, this);
-  if (dialog.exec() == QDialog::Accepted) {
-    try {
-      int quantity = dialog.getWriteOffQuantity();
-
-      if (quantity <= 0 || quantity > product.getQuantity()) {
-        QMessageBox::warning(this, "Error", "Invalid write-off quantity.");
-        return;
-      }
-
-      double writeOffValue = quantity * product.getUnitPrice();
-      Q_UNUSED(writeOffValue);
-
-      QString productName = QString::fromStdString(product.getName());
-      if (productName.isEmpty()) {
-        productName = "Unknown Product";
-      }
-
-      try {
-        auto result = WriteOffService::writeOffProduct(
-            *inventoryManager, dbManager, product.getId(), quantity,
-            productName);
-        Q_UNUSED(result);
-      } catch (const ProductException &e) {
-        QMessageBox::critical(this, "Error", QString::fromStdString(e.what()));
-        return;
-      } catch (const std::exception &e) {
-        QMessageBox::critical(
-            this, "Error",
-            QString("Failed to write off product: %1").arg(e.what()));
-        return;
-      } catch (...) {
-        QMessageBox::critical(this, "Error",
-                              "Failed to write off product: unknown error");
-        return;
-      }
-
-      bool saveSuccess = false;
-      try {
-        if (inventoryManager) {
-          saveSuccess = FileManager::saveToBinary(*inventoryManager,
-                                                  dataFilePath.toStdString());
-          if (!saveSuccess) {
-            QMessageBox::warning(
-                this, "Warning",
-                "Product written off, but failed to save to file.");
-          }
-        }
-      } catch (const std::exception &e) {
-        qDebug() << "Error saving to file:" << e.what();
-        QMessageBox::critical(
-            this, "Error",
-            QString("Failed to save data to file: %1").arg(e.what()));
-      } catch (...) {
-        qDebug() << "Unknown error saving to file";
-        QMessageBox::critical(this, "Error",
-                              "Failed to save data to file: unknown error");
-      }
-
-      try {
-        if (productModel && inventoryManager) {
-          productModel->refresh();
-        }
-        if (tableView) {
-          tableView->viewport()->update();
-          tableView->update();
-          tableView->resizeColumnsToContents();
-
-          QApplication::processEvents();
-        }
-
-        updateWriteOffsReport();
-      } catch (const std::exception &e) {
-        qDebug() << "Error refreshing model:" << e.what();
-
-      } catch (...) {
-        qDebug() << "Unknown error refreshing model";
-      }
-
-      try {
-        QMessageBox::information(
-            this, "Success",
-            QString("Product '%1' written off successfully!\nQuantity reduced "
-                    "by %2.")
-                .arg(productName)
-                .arg(quantity));
-      } catch (...) {
-
-        qDebug() << "Failed to show success message";
-      }
-    } catch (const ProductException &e) {
-      QMessageBox::warning(this, "Error", QString::fromStdString(e.what()));
-    } catch (const std::exception &e) {
-      QMessageBox::critical(this, "Error",
-                            QString("An error occurred: %1").arg(e.what()));
-    } catch (...) {
-      QMessageBox::critical(
-          this, "Error",
-          "An unexpected error occurred while writing off the product.");
-    }
+  if (dialog.exec() != QDialog::Accepted) {
+    return;
   }
+
+  int quantity = 0;
+  try {
+    quantity = dialog.getWriteOffQuantity();
+  } catch (const ProductException &e) {
+    QMessageBox::warning(this, "Error", QString::fromStdString(e.what()));
+    return;
+  } catch (const std::exception &e) {
+    QMessageBox::critical(this, "Error",
+                          QString("An error occurred: %1").arg(e.what()));
+    return;
+  } catch (...) {
+    QMessageBox::critical(
+        this, "Error",
+        "An unexpected error occurred while writing off the product.");
+    return;
+  }
+
+  if (!validateWriteOffQuantity(product, quantity)) {
+    return;
+  }
+
+  double writeOffValue = quantity * product.getUnitPrice();
+  Q_UNUSED(writeOffValue);
+
+  const QString productName = safeProductName(product);
+  if (!runWriteOffFlow(product, quantity, productName)) {
+    return;
+  }
+
+  persistInventoryAfterWriteOff();
+  refreshUiAfterWriteOff();
+  showWriteOffSuccess(productName, quantity);
 }
 
 QWidget *MainWindow::createOrdersSection() {

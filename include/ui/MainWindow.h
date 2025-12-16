@@ -70,6 +70,15 @@ private:
   void setupSidebar();
   void setupContentArea();
 
+  bool validateWriteOffRow(int row);
+  bool validateWriteOffQuantity(const Product &product, int quantity);
+  QString safeProductName(const Product &product) const;
+  bool runWriteOffFlow(const Product &product, int quantity,
+                       const QString &productName);
+  void persistInventoryAfterWriteOff();
+  void refreshUiAfterWriteOff();
+  void showWriteOffSuccess(const QString &productName, int quantity);
+
   QWidget *createWarehouseSection();
   QWidget *createOrdersSection();
   QWidget *createInventorySection();

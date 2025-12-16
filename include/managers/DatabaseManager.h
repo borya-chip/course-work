@@ -22,6 +22,8 @@ private:
   QString writeOffFilePath;
   QString ordersFilePath;
 
+  bool connected = false;
+
   ProductDataStore *productStore;
   OrderDataStore *orderStore;
   WriteOffDataStore *writeOffStore;
