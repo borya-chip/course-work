@@ -7,9 +7,6 @@ ProductModel::ProductModel(InventoryService* inventoryManager, QObject* parent)
     refresh();
 }
 
-ProductModel::~ProductModel() {
-}
-
 int ProductModel::rowCount(const QModelIndex& parent) const {
     Q_UNUSED(parent);
     return static_cast<int>(products.size());

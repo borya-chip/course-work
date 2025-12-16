@@ -22,7 +22,7 @@ public:
     };
 
     explicit ProductModel(InventoryService* inventoryManager, QObject* parent = nullptr);
-    ~ProductModel();
+    ~ProductModel() = default;
 
     int rowCount(const QModelIndex& parent) const override;
     int columnCount(const QModelIndex& parent) const override;

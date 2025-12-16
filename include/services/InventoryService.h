@@ -11,7 +11,7 @@ private:
     std::vector<std::shared_ptr<Product>> writeOffHistory;
 
 public:
-    InventoryService();
+    InventoryService() = default;
 
     void addProduct(std::shared_ptr<Product> product);
     void updateProduct(int id, std::shared_ptr<Product> product);

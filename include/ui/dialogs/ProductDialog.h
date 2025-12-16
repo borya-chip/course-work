@@ -16,7 +16,7 @@ class ProductDialog : public QDialog {
 
 public:
     explicit ProductDialog(QWidget* parent = nullptr);
-    ProductDialog(const Product& product, QWidget* parent = nullptr);
+    explicit ProductDialog(const Product& product, QWidget* parent = nullptr);
     
     Product getProduct() const;
     bool isEditMode() const { return editMode; }

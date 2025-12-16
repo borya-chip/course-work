@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <string>
 
-InventoryService::InventoryService() {}
-
 void InventoryService::addProduct(std::shared_ptr<Product> product) {
   try {
     repository.add(product);
